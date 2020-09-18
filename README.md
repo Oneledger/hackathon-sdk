@@ -40,6 +40,18 @@ Download Oneledger SDK libs **(Click on zip file and click Download button)** an
 ```
 **All Oneledger libs should be stored under the root dir of your project.**
 
+Your root dir should look like below:
+```
+.
+├── explorer-sdk-js
+├── hd-vault
+├── middle_utility
+├── node_modules
+├── ons-SDK
+├── ons-faucet
+└── package.json
+```
+
 Install dependencies:  
 
 Run below command inside each Oneledger SDK dependency folder, then run it one more time in your project root dir.
@@ -96,7 +108,7 @@ Oneledger Key Derivation
         keyType: "OLT",
         keyIndex: 0, // Increment keyIndex for generating new keys
         password: yourMasterKeyPassword,
-        encryptedMasterKeySeed: encryptedMasterKeySeed
+        encryptedMasterKeySeed: yourEncryptedMasterKeySeed
     };
     const {response} = await HDVault.derivedKeyManager.deriveNewKeyPair(derivedKeyData).catch(error => {
         // handler error here
@@ -105,11 +117,12 @@ Oneledger Key Derivation
 ```
 
 Notice:
-1. `keyIndex` can be any non-negative integer, different `keyIndex` will derive different key pair.
-2. For security reasons, HD wallet does not expose private key, the `repsonse` only returns current key index, address and public key associated with this address.
+1. `yourEncryptedMasterKeySeed` is from the last step
+2. `keyIndex` can be any non-negative integer, different `keyIndex` will derive different key pair.
+3. For security reasons, HD wallet does not expose private key, the `repsonse` only returns current key index, address and public key associated with this address.
 
 ## 3. Request Test OLT
-<span id="RequestTestOLT">You can only request test OLT on Testnet.</span>
+<span id="RequestTestOLT">You can only request test OLT on Testnet or local blockchain network.</span>
 ```javascript 1.8
     const faucet = require('ons-faucet'); 
     
@@ -213,6 +226,13 @@ Notice:
         const {txHash, height} = response;
     }
 ```
+If this function is called, you will see similar result as below:
+```
+{ response:
+   { txHash:
+      '0x64B3AADE349775974A3FFA9927C732669566EFA673954241A4A3AA3B84256D96',
+     height: undefined } }
+```
 
 Notice:  
 1. `broadcastType` could be `Async`, `Sync` and `TxCommitMtSig`, we recommend to use `Sync` here.
@@ -220,6 +240,7 @@ Notice:
 3. `publicKey` is the public key of the key pair that used to sign this transaction.
 4. `txHash` in return response could be used for later tx query, each tx has its own unique txHash, `height` might be `undefined` if tx been broadcasted by `Sync`.
 5. To successfully broadcast a transaction to Oneledger network, you should have enough OLT balance in the signing account, to get test OLT, please refer to [3. Request Test OLT](#RequestTestOLT)
+6. `height` in the response will be undefined if we choose `async` or `sync` as the broadcast type.
 
 ## 7. Query Account Balance
 ```javascript 1.8
@@ -274,9 +295,17 @@ Notice:
 To make it easily understandable, we will implement a transaction that stores a json object into Oneledger blockchain in the following example. 
 ### 9.1 Register customized transaction type
 ```javascript 1.8
-    const CustmoziedTxType = "STOREJSON";
+    const CustmoziedTxType = "YourTransactionType";
 ```
-`STOREJSON` must be registered on Oneledger protocol already, otherwise Oneledger blockchain will not recognize it.
+`YourTransactionType` must be registered on Oneledger protocol already, otherwise Oneledger blockchain will not recognize it.
+
+This should be a six-digit number starting with "99"
+
+For example:
+```javascript 1.8
+    const CustmoziedTxType = 990101;
+```
+
 
 ### 9.2 Implement customized transaction prepare function
 In `main.js` of your project.
@@ -292,7 +321,7 @@ In `main.js` of your project.
         }
     };
 
-    async function storeJsonTx({key, value, gasAdjustment = 0}, env) {
+    async function farmProduceTx({batchId, itemType, farmId, farmName, harvestLocation, harvestDate, quantity, operator, classification = "", description = "", gasAdjustment = 0}, env) {
         // do the input check
     
         // query current gas price from Oneledger network
@@ -306,7 +335,17 @@ In `main.js` of your project.
         
         // construct your customized transaction data
         const tx_dataObj = {
-            jsonData: {key: value} // `jsonData` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name
+            // `batchId` and so on need to be explicitly defined in the customized transaction in Oneledger protocol as json tag name
+            batchId: batchId,
+            itemType: itemType,
+            farmId: farmId,
+            farmName: farmName,
+            harvestLocation: harvestLocation,
+            harvestDate: harvestDate,
+            classification: classification,
+            quantity: quantity,
+            description: description,
+            operator: operator
         };
 
         const assembledTx = util.assembleTxData(CustmoziedTxType, tx_dataObj, gasPrice, gasAdjustment);
@@ -324,6 +363,47 @@ Notice:
 2. `gasAdjustment` is used for providing more gas to speed up your transaction, it's `0` by default, we don't need to modify it.
 3. `storeJsonTx` defined above will return you `rawTx` along with `feeEstimation` which gives you a heads-up about how much the transaction fee is gonna cost.
 4. After your get `rawTx`, you can continue from [5. Sign Transaction](#signTx).  
+
+## 10. Customized Query in SDK
+<span id="CustomizedQueryInSDK">In this section</span>, you will learn how to implement your own query in Oneledger SDK. 
+
+In `main.js` of your project.
+```javascript 1.8
+    const {request} = require('ons-SDK');
+    const env = {
+        url: fullnodeUrl,
+        storeConfig: {
+            platform: "electron",
+            storeLocation: __dirname
+        }
+    };
+    async function queryProduct(batchId, env) {
+        const params = {batchId: batchId} ;
+        //this custom method needs to be explicitly registerd in Oneledger protocol
+        const method = "farm_query.GetBatchByID";
+        const result = await request.queryCustom(method, params, env).catch(err => {
+            // handle error here
+            return Promise.reject(err)
+        })
+        return Promise.resolve(result)
+    }
+```
+If this function called, you will see the similar result as below:
+```
+queryResult:  { response:
+   { produceBatch:
+      { batchId: '100000001',
+        itemType: 'apples',
+        farmId: 'F12345',
+        farmName: 'sunny',
+        harvestLocation: 'high ground',
+        harvestDate: 1600360761,
+        classification: 'AAA',
+        quantity: 100,
+        description: '' },
+     height: 5223 } }
+```
+
 
 
 To Learn more about Oneledger SDK, please go to [Full Documentation](https://oneledger.atlassian.net/wiki/spaces/EN/pages/562200577/3.1+SDK+Documentation).
