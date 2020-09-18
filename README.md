@@ -28,7 +28,7 @@ Create your own project:
 ```
 Just follow the default settings during `npm init` would be fine, you can always make changes in `package.json` about your project later.
 
-Download Oneledger SDK libs(Click on zip file and click Download button) and update `package.json` dependencies:
+Download Oneledger SDK libs **(Click on zip file and click Download button)** and update `package.json` dependencies:
 ```json
     "dependencies": {
         "hd-vault": "file:./hd-vault", 
