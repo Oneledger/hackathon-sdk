@@ -10,6 +10,31 @@ SDK has several codebase that taking care of different features.
 - [sdk-interoperability](https://github.com/Oneledger/sdk-interoperability): Oneledger interoperability lib of SDK, including support of Ethereum and Bitcoin lock&redeem feature.
 - [explorer-sdk-js](https://github.com/Oneledger/explorer-sdk-js): Oneledger Explorer SDK, including APIs of Oneledger transactions queries from Explorer server.
 
+**For hackathon event, here are some info you will need in the SDK, and these will be explained in the following tutorial**
+1. fullnodeUrl: "https://xxx.fullnode.oneledger.network/jsonrpc"
+2. faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"
+3. CustomizedTxType = 990201
+4. CustomizedRPCMethod = "vpart_query.GetVPart"
+5. json tag for creating the transaction that insert vehicle part:
+   ```
+	VIN:                 "vin"
+	Part Type:           "partType"
+	Dealer Name:         "dealerName"
+	Stock Number:        "stockNum"
+	Dealer Address:      "dealerAddress"
+	Year of Manufacture: "year"
+	Operator:            "operator"
+   ```
+5. Some restrictions in the vehicle part tracking app:
+   1. vehicle identification number (VIN) needs to be exact 17 characters in string
+   2. Stock number needs to be exact 9 characters in string
+   3. Year of manufacture will be integer
+6. json tag for querying the vehicle part:
+   ```
+	VIN:                 "vin"
+	Part Type:           "partType"
+   ```
+
 ## 0. Pre-Start
 Install npm and node and make sure you have them as the following version:
 ```bash
@@ -67,9 +92,8 @@ Create `main.js` file, this would be the main file of your project:
 Declare some const values that we need in this project later:
 ```javascript 1.8
     const yourMasterKeyPassword = "5h$mY_SupEr_sTRong_%$passWorD123#@"; // password to encrypt/decrypt your HD wallet master key
-    const fullnodeUrl = "https://xxx.fullnode.oneledger.network/jsonrpc"; // fullnode URL is used to broadcast transactions and make query
-    const explorerServerUrl = "https://xxx.explorer.oneledger.network"; // explorer URL is used to query transaction history
-    const faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"; // faucet server URL is used to request Test OLT
+    const fullnodeUrl = "https://xxx.fullnode.oneledger.network/jsonrpc"; // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
+    const faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"; // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
     const requestAmount = 10000; // Test OLT amount to request
     const sendAmount = "2000"; // Test OLT amount to send
 ```
@@ -289,23 +313,16 @@ Notice:
 2. `queryAddress` in `data` is the address that you want to query.
 
 
-## 9. Customized Transaction in SDK
-<span id="CustomizedTransctionInSDK">In this section</span>, you will learn how to implement your own transaction in Oneledger SDK.  
+## 9. Customized Transaction&Query in SDK
+<span id="CustomizedTransctionInSDK">In this section</span>, you will learn how to implement your own transaction and query in Oneledger SDK.  
 
-To make it easily understandable, we will implement a transaction that stores a json object into Oneledger blockchain in the following example. 
-### 9.1 Register customized transaction type
+### 9.1 Prepare customized transaction type
 ```javascript 1.8
-    const CustmoziedTxType = "YourTransactionType";
+    const CustomizedTxType = "YourTransactionType";
 ```
 `YourTransactionType` must be registered on Oneledger protocol already, otherwise Oneledger blockchain will not recognize it.
 
-This should be a six-digit number starting with "99"
-
-For example:
-```javascript 1.8
-    const CustmoziedTxType = 990101;
-```
-
+This should be a six-digit number starting with "99". This is provided in the beginning of this tutorial.
 
 ### 9.2 Implement customized transaction prepare function
 In `main.js` of your project.
@@ -321,7 +338,7 @@ In `main.js` of your project.
         }
     };
 
-    async function farmProduceTx({batchId, itemType, farmId, farmName, harvestLocation, harvestDate, quantity, operator, classification = "", description = "", gasAdjustment = 0}, env) {
+    async function youCustomizedTx({youParameters, gasAdjustment = 0}, env) {
         // do the input check
     
         // query current gas price from Oneledger network
@@ -335,20 +352,11 @@ In `main.js` of your project.
         
         // construct your customized transaction data
         const tx_dataObj = {
-            // `batchId` and so on need to be explicitly defined in the customized transaction in Oneledger protocol as json tag name
-            batchId: batchId,
-            itemType: itemType,
-            farmId: farmId,
-            farmName: farmName,
-            harvestLocation: harvestLocation,
-            harvestDate: harvestDate,
-            classification: classification,
-            quantity: quantity,
-            description: description,
-            operator: operator
+            fieldName: parametersYouWantToPassHere // `fieldName` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name, in the vehicle part tracking app, this will be `vin: xxx` and so on.
+            ...
         };
 
-        const assembledTx = util.assembleTxData(CustmoziedTxType, tx_dataObj, gasPrice, gasAdjustment);
+        const assembledTx = util.assembleTxData(CustomizedTxType, tx_dataObj, gasPrice, gasAdjustment);
         assembledTx.fee.gas = 400000
         const {gas} = assembledTx.fee;
         const feeEstimationResult = await util.txFeeEstimator(gas, gasPrice).catch(error => {
@@ -361,10 +369,10 @@ In `main.js` of your project.
 Notice:
 1. Oneledger SDK is able to support different type of transactions by different implementation of transaction prepare. Transaction prepare step will gather all data which transaction needed and encode it into `rawTx`.
 2. `gasAdjustment` is used for providing more gas to speed up your transaction, it's `0` by default, we don't need to modify it.
-3. `storeJsonTx` defined above will return you `rawTx` along with `feeEstimation` which gives you a heads-up about how much the transaction fee is gonna cost.
+3. `youCustomizedTx` defined above will return you `rawTx` along with `feeEstimation` which gives you a heads-up about how much the transaction fee is gonna cost.
 4. After your get `rawTx`, you can continue from [5. Sign Transaction](#signTx).  
 
-## 10. Customized Query in SDK
+### 9.3 Customized Query in SDK
 <span id="CustomizedQueryInSDK">In this section</span>, you will learn how to implement your own query in Oneledger SDK. 
 
 In `main.js` of your project.
@@ -377,10 +385,10 @@ In `main.js` of your project.
             storeLocation: __dirname
         }
     };
-    async function queryProduct(batchId, env) {
-        const params = {batchId: batchId} ;
-        //this custom method needs to be explicitly registerd in Oneledger protocol
-        const method = "farm_query.GetBatchByID";
+    async function queryValue(youParameters, env) {
+        const params = {fieldName: parametersYouWantToPassHere} ; // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin: xxx` and so on.
+        //this custom method needs to be explicitly registerd in Oneledger protocol, this provided in the beginning of this tutorial
+        const method = "YourCustomizedRPCMethod";
         const result = await request.queryCustom(method, params, env).catch(err => {
             // handle error here
             return Promise.reject(err)
@@ -388,23 +396,6 @@ In `main.js` of your project.
         return Promise.resolve(result)
     }
 ```
-If this function called, you will see the similar result as below:
-```
-queryResult:  { response:
-   { produceBatch:
-      { batchId: '100000001',
-        itemType: 'apples',
-        farmId: 'F12345',
-        farmName: 'sunny',
-        harvestLocation: 'high ground',
-        harvestDate: 1600360761,
-        classification: 'AAA',
-        quantity: 100,
-        description: '' },
-     height: 5223 } }
-```
-
-
 
 To Learn more about Oneledger SDK, please go to [Full Documentation](https://oneledger.atlassian.net/wiki/spaces/EN/pages/562200577/3.1+SDK+Documentation).
 
