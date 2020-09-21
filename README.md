@@ -329,7 +329,8 @@ In `main.js` of your project.
         
         // construct your customized transaction data
         const tx_dataObj = {
-            fieldName: parametersYouWantToPassHere // `fieldName` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name, in the vehicle part tracking app, this will be `vin` and so on.
+            // `fieldName` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name, in the vehicle part tracking app, this will be `vin` and so on.
+            fieldName: parametersYouWantToPassHere 
             ...
         };
 
@@ -364,7 +365,10 @@ In `main.js` of your project.
     };
     async function queryValue(youParameters, env) {
         // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin` and so on.
-        const params = {fieldName: parametersYouWantToPassHere} ;
+        const params = {
+            fieldName: parametersYouWantToPassHere
+            ...
+            } ;
         //this custom method needs to be explicitly registerd in Oneledger protocol, this provided in the beginning of this tutorial
         const method = "YourCustomizedRPCMethod";
         const result = await request.queryCustom(method, params, env).catch(err => {
