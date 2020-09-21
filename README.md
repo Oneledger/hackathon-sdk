@@ -26,9 +26,10 @@ SDK has several codebase that taking care of different features.
 	Operator:            "operator"
    ```
 5. Some restrictions in the vehicle part tracking app:
-   1. vehicle identification number (VIN) needs to be exact 17 characters in string
+   1. Vehicle identification number (VIN) needs to be exact 17 characters in string
    2. Stock number needs to be exact 9 characters in string
-   3. Year of manufacture will be integer
+   3. The combination of VIN and part type should be unique(same VIN with different part types will be recognized as different vehicle part entities, vise versa)
+   4. Year of manufacture will be integer
 6. json tag for querying the vehicle part:
    ```
 	VIN:                 "vin"
@@ -91,7 +92,7 @@ Create `main.js` file, this would be the main file of your project:
 
 Declare some const values that we need in this project later:
 ```javascript 1.8
-    const yourMasterKeyPassword = "5h$mY_SupEr_sTRong_%$passWorD123#@"; // password to encrypt/decrypt your HD wallet master key
+    const yourMasterKeyPassword = "5h$mY_SupEr_sTRong_%$passWorD123#@"; // password to encrypt/decrypt your HD wallet master key, choose for yourself
     const fullnodeUrl = "https://xxx.fullnode.oneledger.network/jsonrpc"; // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
     const faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"; // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
     const requestAmount = 10000; // Test OLT amount to request
@@ -112,6 +113,7 @@ Master Key Derivation:
     const masterKey = new HDVault.MasterKeySeedManager(mnemonicWords, yourMasterKeyPassword);
     const {encryptedMasterKeySeed} = masterKey.getMasterKeySeedInfo();
 ```
+This step is only needed once, after you get your master key seed info, put it into a variable to be used later.
 
 Now you have a functioning HD wallet yourself, you can derive Oneledger key pairs from your HD wallet now.  
 There are few things you need to keep in mind before proceeding:
