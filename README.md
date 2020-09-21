@@ -20,8 +20,8 @@ SDK has several codebase that taking care of different features.
 	VIN:                 "vin"
 	Part Type:           "partType"
 	Dealer Name:         "dealerName"
-	Stock Number:        "stockNum"
 	Dealer Address:      "dealerAddress"
+    Stock Number:        "stockNum"
 	Year of Manufacture: "year"
 	Operator:            "operator"
    ```
@@ -144,9 +144,13 @@ Notice:
 1. `yourEncryptedMasterKeySeed` is from the last step
 2. `keyIndex` can be any non-negative integer, different `keyIndex` will derive different key pair.
 3. For security reasons, HD wallet does not expose private key, the `repsonse` only returns current key index, address and public key associated with this address.
+4. This address will be the `operator` field in the insert vehicle part transaction.
 
 ## 3. Request Test OLT
 <span id="RequestTestOLT">You can only request test OLT on Testnet or local blockchain network.</span>
+
+This is needed so we can have some balance to pay the transaction fee when we broadcast the transaction to the blockchain network.
+
 ```javascript 1.8
     const faucet = require('ons-faucet'); 
     
@@ -264,7 +268,7 @@ Notice:
 3. `publicKey` is the public key of the key pair that used to sign this transaction.
 4. `txHash` in return response could be used for later tx query, each tx has its own unique txHash, `height` might be `undefined` if tx been broadcasted by `Sync`.
 5. To successfully broadcast a transaction to Oneledger network, you should have enough OLT balance in the signing account, to get test OLT, please refer to [3. Request Test OLT](#RequestTestOLT)
-6. `height` in the response will be undefined if we choose `async` or `sync` as the broadcast type.
+6. `height` in the response is ok to be `undefined` if we choose `async` or `sync` as the broadcast type.
 
 ## 7. Query Account Balance
 ```javascript 1.8
@@ -386,7 +390,8 @@ In `main.js` of your project.
         }
     };
     async function queryValue(youParameters, env) {
-        const params = {fieldName: parametersYouWantToPassHere} ; // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin: xxx` and so on.
+        // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin: xxx` and so on.
+        const params = {fieldName: parametersYouWantToPassHere} ;
         //this custom method needs to be explicitly registerd in Oneledger protocol, this provided in the beginning of this tutorial
         const method = "YourCustomizedRPCMethod";
         const result = await request.queryCustom(method, params, env).catch(err => {
