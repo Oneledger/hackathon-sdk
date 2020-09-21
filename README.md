@@ -270,7 +270,6 @@ Notice:
 3. `publicKey` is the public key of the key pair that used to sign this transaction.
 4. `txHash` in return response could be used for later tx query, each tx has its own unique txHash, `height` might be `undefined` if tx been broadcasted by `Sync`.
 5. To successfully broadcast a transaction to Oneledger network, you should have enough OLT balance in the signing account, to get test OLT, please refer to [3. Request Test OLT](#RequestTestOLT)
-6. `height` in the response is ok to be `undefined` if we choose `async` or `sync` as the broadcast type.
 
 ## 7. Query Account Balance
 ```javascript 1.8
@@ -291,38 +290,10 @@ Notice:
 Notice: 
 1. `currency` is optional, it will query all currency that address owns if `currency` not given.
 
-## 8. Query Transaction History
-```javascript 1.8
-    const {account} = require("explorer-sdk-js");
-
-    const env = {
-        url: explorerServerUrl,
-        storeConfig: {
-            platform: "electron",
-            storeLocation: __dirname
-        }
-    };
-
-    const data = {
-        address: queryAddress,
-        page: 0, 
-        pageSize: 20
-    }
-    const {response} = await account.queryAccountTxs(data, env).catch(error => {
-        // handle error here
-    });
-    const txs = response;
-```
-
-Notice:
-1. `env.url` must be a valid Oneledger Explorer server URL.
-2. `queryAddress` in `data` is the address that you want to query.
-
-
-## 9. Customized Transaction&Query in SDK
+## 8. Customized Transaction&Query in SDK
 <span id="CustomizedTransctionInSDK">In this section</span>, you will learn how to implement your own transaction and query in Oneledger SDK.  
 
-### 9.1 Prepare customized transaction type
+### 8.1 Prepare customized transaction type
 ```javascript 1.8
     const CustomizedTxType = "YourTransactionType";
 ```
@@ -330,7 +301,7 @@ Notice:
 
 This should be a six-digit number starting with "99". This is provided in the beginning of this tutorial.
 
-### 9.2 Implement customized transaction prepare function
+### 8.2 Implement customized transaction prepare function
 In `main.js` of your project.
 ```javascript 1.8
     const {request, util, offlineSerialize} = require('ons-SDK');
@@ -358,7 +329,7 @@ In `main.js` of your project.
         
         // construct your customized transaction data
         const tx_dataObj = {
-            fieldName: parametersYouWantToPassHere // `fieldName` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name, in the vehicle part tracking app, this will be `vin: xxx` and so on.
+            fieldName: parametersYouWantToPassHere // `fieldName` has to be explicitly defined in the customized transaction in Oneledger protocol as json tag name, in the vehicle part tracking app, this will be `vin` and so on.
             ...
         };
 
@@ -378,7 +349,7 @@ Notice:
 3. `youCustomizedTx` defined above will return you `rawTx` along with `feeEstimation` which gives you a heads-up about how much the transaction fee is gonna cost.
 4. After your get `rawTx`, you can continue from [5. Sign Transaction](#signTx).  
 
-### 9.3 Customized Query in SDK
+### 8.3 Customized Query in SDK
 <span id="CustomizedQueryInSDK">In this section</span>, you will learn how to implement your own query in Oneledger SDK. 
 
 In `main.js` of your project.
@@ -392,7 +363,7 @@ In `main.js` of your project.
         }
     };
     async function queryValue(youParameters, env) {
-        // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin: xxx` and so on.
+        // `fieldName` here needs to be be explicitly defined in Oneledger protocol as json tag name, this is provided in the beginning of this tutorial, it should be `vin` and so on.
         const params = {fieldName: parametersYouWantToPassHere} ;
         //this custom method needs to be explicitly registerd in Oneledger protocol, this provided in the beginning of this tutorial
         const method = "YourCustomizedRPCMethod";
