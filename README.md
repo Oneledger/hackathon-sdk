@@ -11,10 +11,10 @@ SDK has several codebase that taking care of different features.
 - [explorer-sdk-js](https://github.com/Oneledger/explorer-sdk-js): Oneledger Explorer SDK, including APIs of Oneledger transactions queries from Explorer server.
 
 **For hackathon event, here are some info you will need in the SDK, and these will be explained in the following tutorial**
-1. fullnodeUrl: "https://xxx.fullnode.oneledger.network/jsonrpc"
-2. faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"
-3. CustomizedTxType = 990201
-4. CustomizedRPCMethod = "vpart_query.GetVPart"
+1. fullnodeUrl: `https://xxx.fullnode.oneledger.network/jsonrpc`
+2. faucetServerUrl = `https://xxx.faucet.oneledger.network/jsonrpc`
+3. CustomizedTxType = `990201`
+4. CustomizedRPCMethod = `vpart_query.GetVPart`
 5. json tag for creating the transaction that insert vehicle part:
    ```
 	VIN:                 "vin"
@@ -25,12 +25,12 @@ SDK has several codebase that taking care of different features.
 	Year of Manufacture: "year"
 	Operator:            "operator"
    ```
-5. Some restrictions in the vehicle part tracking app:
+6. Some restrictions in the vehicle part tracking app:
    1. Vehicle identification number (VIN) needs to be exact 17 characters in string
    2. Stock number needs to be exact 9 characters in string
    3. The combination of VIN and part type should be unique(same VIN with different part types will be recognized as different vehicle part entities, vise versa)
    4. Year of manufacture will be integer
-6. json tag for querying the vehicle part:
+7. json tag for querying the vehicle part:
    ```
 	VIN:                 "vin"
 	Part Type:           "partType"
@@ -93,8 +93,8 @@ Create `main.js` file, this would be the main file of your project:
 Declare some const values that we need in this project later:
 ```javascript 1.8
     const yourMasterKeyPassword = "5h$mY_SupEr_sTRong_%$passWorD123#@"; // password to encrypt/decrypt your HD wallet master key, choose for yourself
-    const fullnodeUrl = "https://xxx.fullnode.oneledger.network/jsonrpc"; // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
-    const faucetServerUrl = "https://xxx.faucet.oneledger.network/jsonrpc"; // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
+    const fullnodeUrl = "fullnodeUrl"; // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
+    const faucetServerUrl = "faucetServerUrl"; // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
     const requestAmount = 10000; // Test OLT amount to request
     const sendAmount = "2000"; // Test OLT amount to send
 ```
