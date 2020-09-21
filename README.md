@@ -11,8 +11,8 @@ SDK has several codebase that taking care of different features.
 - [explorer-sdk-js](https://github.com/Oneledger/explorer-sdk-js): Oneledger Explorer SDK, including APIs of Oneledger transactions queries from Explorer server.
 
 **For hackathon event, here are some info you will need in the SDK, and these will be explained in the following tutorial**
-1. fullnodeUrl: `https://xxx.fullnode.oneledger.network/jsonrpc`
-2. faucetServerUrl = `https://xxx.faucet.oneledger.network/jsonrpc`
+1. fullnodeUrl: `https://comm-test-fn1.devnet.oneledger.network/jsonrpc`
+2. faucetServerUrl = `https://comm-test-faucet.devnet.oneledger.network/jsonrpc`
 3. CustomizedTxType = `990201`
 4. CustomizedRPCMethod = `vpart_query.GetVPart`
 5. json tag for creating the transaction that insert vehicle part:
