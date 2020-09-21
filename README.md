@@ -135,8 +135,6 @@ Notice:
 
 
 ## 4. Prepare Transaction  
-**If you are working on customized transaction, please go to [9. Customized Transaction in SDK](#CustomizedTransctionInSDK)**
-
 Here, we are taking `send currency to an address` transaction as example.
 ```javascript 1.8
     const {transfer} = require('ons-SDK');
@@ -182,6 +180,8 @@ Notice:
    b). `browser`: If your are working on Chrome extension app(or any other app that has access to browser `window.localSotrage`), choose this one and set proper `storeLocation`, `__dirname` would be used by default.  
 2. `currency` here we use `OLT`.
 3. Destructure the response to get `rawTx`, this is the transaction that you need to sign with your OLT key later.
+
+**If you are working on customized transaction, please go to [9. Customized Transaction in SDK](#CustomizedTransctionInSDK)**
 
 ## 5. Sign Transaction
 <span id="signTx">Sign transaction</span> with Oneledger Key derived by HD wallet.
