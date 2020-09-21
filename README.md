@@ -93,8 +93,10 @@ Create `main.js` file, this would be the main file of your project:
 Declare some const values that we need in this project later:
 ```javascript 1.8
     const yourMasterKeyPassword = "5h$mY_SupEr_sTRong_%$passWorD123#@"; // password to encrypt/decrypt your HD wallet master key, choose for yourself
-    const fullnodeUrl = "fullnodeUrl"; // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
-    const faucetServerUrl = "faucetServerUrl"; // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
+    const fullnodeUrl = "https://comm-test-fn1.devnet.oneledger.network/jsonrpc" 
+    // fullnode URL is used to broadcast transactions and make query, please refer to the beginning of this tutorial
+    const faucetServerUrl = "https://comm-test-faucet.devnet.oneledger.network/jsonrpc"; 
+    // faucet server URL is used to request Test OLT, please refer to the beginning of this tutorial
     const requestAmount = 10000; // Test OLT amount to request
     const sendAmount = "2000"; // Test OLT amount to send
 ```
@@ -211,7 +213,7 @@ Notice:
 2. `currency` here we use `OLT`.
 3. Destructure the response to get `rawTx`, this is the transaction that you need to sign with your OLT key later.
 
-**If you are working on customized transaction, please go to [9. Customized Transaction in SDK](#CustomizedTransctionInSDK)**
+**If you are working on customized transaction, please go to [8. Customized Transaction in SDK](#CustomizedTransctionInSDK)**
 
 ## 5. Sign Transaction
 <span id="signTx">Sign transaction</span> with Oneledger Key derived by HD wallet.
@@ -299,7 +301,7 @@ Notice:
 ```
 `YourTransactionType` must be registered on Oneledger protocol already, otherwise Oneledger blockchain will not recognize it.
 
-This should be a six-digit number starting with "99". This is provided in the beginning of this tutorial.
+This should be a six-digit number starting with `99`. This is provided in the beginning of this tutorial.
 
 ### 8.2 Implement customized transaction prepare function
 In `main.js` of your project.
